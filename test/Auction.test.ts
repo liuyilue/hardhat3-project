@@ -1,16 +1,19 @@
 import { expect } from "chai";
-import { ethers } from "hardhat";
-import { NFT, Auction, MockERC20 } from "../typechain-types";
+import { network } from "hardhat";
 
+const { ethers } = (await network.create()) as any;
+
+// Auction 合约测试集
 describe("Auction Contract", function () {
-  let nft: NFT;
-  let auction: Auction;
-  let erc20: MockERC20;
+  let nft: any;
+  let auction: any;
+  let erc20: any;
   let owner: any;
   let seller: any;
   let bidder1: any;
   let bidder2: any;
 
+  // 每个测试用例前的部署与初始化
   beforeEach(async function () {
     [owner, seller, bidder1, bidder2] = await ethers.getSigners();
 
@@ -31,6 +34,7 @@ describe("Auction Contract", function () {
     await auction.initialize(mockEthUsdPriceFeed, mockErc20UsdPriceFeed);
   });
 
+  // 测试：创建一个新的拍卖
   it("Should create an auction", async function () {
     await nft.connect(owner).safeMint(seller.address, "https://example.com/token/1");
     await nft.connect(seller).approve(await auction.getAddress(), 0);
@@ -44,6 +48,7 @@ describe("Auction Contract", function () {
     )).to.emit(auction, "AuctionCreated");
   });
 
+  // 测试：使用 ETH 进行竞价
   it("Should place a bid with ETH", async function () {
     await nft.connect(owner).safeMint(seller.address, "https://example.com/token/1");
     await nft.connect(seller).approve(await auction.getAddress(), 0);
@@ -64,6 +69,7 @@ describe("Auction Contract", function () {
     expect(auctionData.highestBidder).to.equal(bidder1.address);
   });
 
+  // 测试：使用 ERC20 代币进行竞价
   it("Should place a bid with ERC20", async function () {
     await erc20.mint(bidder1.address, ethers.parseEther("100"));
     await erc20.connect(bidder1).approve(await auction.getAddress(), ethers.parseEther("100"));
@@ -86,6 +92,7 @@ describe("Auction Contract", function () {
     expect(auctionData.highestBid).to.equal(ethers.parseEther("100"));
   });
 
+  // 测试：结束拍卖并将 NFT 转移给最高出价者
   it("Should end auction and transfer NFT to highest bidder", async function () {
     await nft.connect(owner).safeMint(seller.address, "https://example.com/token/1");
     await nft.connect(seller).approve(await auction.getAddress(), 0);
@@ -93,14 +100,14 @@ describe("Auction Contract", function () {
     await auction.connect(seller).createAuction(
       await nft.getAddress(),
       0,
-      1,
+      60,
       false,
       ethers.ZeroAddress
     );
 
     await auction.connect(bidder1).placeBid(1, { value: ethers.parseEther("1") });
 
-    await ethers.provider.send("evm_increaseTime", [2]);
+    await ethers.provider.send("evm_increaseTime", [61]);
     await ethers.provider.send("evm_mine", []);
 
     await expect(auction.connect(owner).endAuction(1))

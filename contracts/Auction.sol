@@ -55,7 +55,7 @@ contract Auction is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
     function initialize(address _ethUsdPriceFeed, address _erc20UsdPriceFeed) initializer public {
         __Ownable_init(msg.sender);
-        __UUPSUpgradeable_init();
+        // __UUPSUpgradeable_init();
         ethUsdPriceFeed = AggregatorV3Interface(_ethUsdPriceFeed);
         erc20UsdPriceFeed = AggregatorV3Interface(_erc20UsdPriceFeed);
         nextAuctionId = 1;
