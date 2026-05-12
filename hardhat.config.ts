@@ -17,9 +17,12 @@ const config = defineConfig({
   networks: {
     sepolia: {
       type: "http",
+      chainId: 11155111, 
       chainType: "l1",
-      url: configVariable("SEPOLIA_RPC_URL"),
-      accounts: [configVariable("PRIVATE_KEY")],
+      url: process.env.SEPOLIA_RPC_URL || "",
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      timeout: 60000, // 超时时间设为 60 秒，解决 408 问题
+      gasMultiplier: 1.2 // 适当提高 gas 上限，避免部署时 gas 不足
     },
   },
 });
