@@ -38,13 +38,21 @@ async function main() {
     ethUsdPriceFeed,
     erc20UsdPriceFeed,
   ]);
+  console.log("initialize data:", initializeData);
 
   // 获取 AuctionProxy 合约工厂
   const Proxy = await ethers.getContractFactory("AuctionProxy", deployer);
-  // 部署代理合约，传入实现合约地址和初始化数据
-  const auctionProxy = await Proxy.deploy(await auctionImplementation.getAddress(), initializeData);
-  // 等待部署完成
-  await auctionProxy.waitForDeployment();
+  let auctionProxy;
+  try {
+    // 部署代理合约，传入实现合约地址和初始化数据
+    auctionProxy = await Proxy.deploy(await auctionImplementation.getAddress(), initializeData);
+    // 等待部署完成
+    await auctionProxy.waitForDeployment();
+  } catch (error) {
+    console.error("Proxy deployment failed.");
+    console.error(error);
+    throw error;
+  }
 
   // 将 Auction 合约附加到代理地址，以便通过代理调用
   const auction = Auction.attach(await auctionProxy.getAddress());
