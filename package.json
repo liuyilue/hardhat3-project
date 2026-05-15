@@ -9,7 +9,8 @@
     "deploy:local": "hardhat run scripts/deploy.ts",
     "deploy:sepolia": "hardhat run scripts/deploy.ts --network sepolia",
     "upgrade:local": "hardhat run scripts/upgrade.ts",
-    "upgrade:sepolia": "hardhat run scripts/upgrade.ts --network sepolia"
+    "upgrade:sepolia": "hardhat run scripts/upgrade.ts --network sepolia",
+    "verify:sepolia": "hardhat run scripts/verifyUpgrade.ts --network sepolia"
   },
   "dependencies": {
     "@chainlink/contracts": "^1.1.1",
